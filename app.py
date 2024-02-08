@@ -26,7 +26,7 @@ available_elements = ['N [%]', 'P [%]', 'K [%]', 'Ca [%]', 'Mg [%]', 'Fe [mg/kg]
 elements = st.multiselect('Select Elements', available_elements)
 
 available_metrics = ['$R^2 Score$', 'MAE', 'MAPE']
-selected_metrics = st.multiselect('Select Elements', available_metrics)
+selected_metrics = st.multiselect('Select Metrics', available_metrics)
 metrics = [available_metrics.index(i) for i in selected_metrics]
 
 # Selecting between base model and crop model
