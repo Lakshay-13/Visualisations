@@ -66,8 +66,8 @@ with_santiago = st.radio('Select Data Type', ('With Santiago', 'Without Santiago
 
 # Assuming you have a function to get a list of available crops and elements from your dataset
 available_crops = ["Piña", "Limón", "Café", "Maiz", "Naranja", "Uva", "Nogal"]  # This should be dynamically generated from your data
-selected_crops = st.multiselect('Select Crops', available_crops)
-crops = [get_crop_id(i) for i in selected_crops]
+selected_crop = get_crop_id(st.selectbox('Select Crops', available_crops))
+# crops = [get_crop_id(i) for i in selected_crops]
 
 # Define macro and micro elements
 macro_elements = ['N [%]', 'P [%]', 'K [%]', 'Ca [%]', 'Mg [%]']  # Macro nutrients
@@ -97,9 +97,9 @@ model_type = st.radio('Model Type', ('Base Model', 'Crop Model'))
 
 # Assuming you have a separate function to filter data based on selected options
 # This is a placeholder for whatever data filtering logic you need
-filtered_data = filter_data(data_with_santiago, data_without_santiago, crops, elements, metrics,
+crop, crop_data = filter_data(data_with_santiago, data_without_santiago, selected_crop, elements, metrics,
                             True if model_type=='Base Model' else False, with_santiago)  # Filter your data based on selected options
 
 # Placeholder for your plotting function, adjust as necessary
 if st.button('Plot Data'):
-    st.pyplot(plot_data(filtered_data, selected_metrics))
+    st.pyplot(plot_data(crop,crop_data, selected_metrics))
