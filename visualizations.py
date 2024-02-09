@@ -93,19 +93,36 @@ def get_color(element):
     return colors[elements.index(element)]
 
 def plot_data(filtered_data, xlabels):
-    check = True
-    for crop_name, elements_data in filtered_data.items():
-        for element_name, values in elements_data.items():
-            means, stds = zip(*[map(float, val.split(' ± ')) for val in values])
-            indices = [get_crop_name(crop_name) + " " + i for i in xlabels]
-            if check:
-                plt.errorbar(indices, means, yerr=stds, fmt='o',c = get_color(element_name),label=element_name)
-            else:
-                plt.errorbar(indices, means, yerr=stds, fmt='o',c = get_color(element_name))
-        check = False
-    plt.title('Elements Analysis')
-    plt.xlabel('Metric Index')
-    plt.ylabel('Value')
-    plt.legend(loc='upper center', bbox_to_anchor=(1.2,0.5), ncol=1)
-    plt.xticks(rotation=45)
+    # Check the number of crops in the filtered data
+    num_crops = len(filtered_data)
+    
+    if num_crops == 1:
+        # If only one crop, plot elements on the x-axis
+        crop_name, elements_data = next(iter(filtered_data.items()))
+        for i, metric in enumerate(xlabels):
+            values = [float(elements_data[element_name][i].split(' ± ')[0]) for element_name in elements_data]
+            stds = [float(elements_data[element_name][i].split(' ± ')[1]) for element_name in elements_data]
+            plt.errorbar(elements_data.keys(), values, yerr=stds, fmt='o', label=metric)
+        plt.xticks(rotation=45)
+        plt.title(f'Elements Analysis for {get_crop_name(crop_name)}')
+        plt.xlabel('Element')
+        plt.ylabel('Value')
+    else:
+        # Original logic for multiple crops
+        check = True
+        for crop_name, elements_data in filtered_data.items():
+            for element_name, values in elements_data.items():
+                means, stds = zip(*[map(float, val.split(' ± ')) for val in values])
+                indices = [get_crop_name(crop_name) + " " + i for i in xlabels]
+                if check:
+                    plt.errorbar(indices, means, yerr=stds, fmt='o', c=get_color(element_name), label=element_name)
+                else:
+                    plt.errorbar(indices, means, yerr=stds, fmt='o', c=get_color(element_name))
+            check = False
+        plt.title('Elements Analysis')
+        plt.xlabel('Metric Index')
+        plt.ylabel('Value')
+        plt.xticks(rotation=45)
+
+    plt.legend(loc='upper center', bbox_to_anchor=(1.2, 0.5), ncol=1)
     plt.show()
