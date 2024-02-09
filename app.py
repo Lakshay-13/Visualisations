@@ -65,7 +65,7 @@ st.title('Crop Elements Analysis')
 with_santiago = st.radio('Select Data Type', ('With Santiago', 'Without Santiago'))
 
 # Assuming you have a function to get a list of available crops and elements from your dataset
-available_crops = ["Piña", "Limón", "Café", "Maiz", "Naranja", "Uva", "Nogal"]  # This should be dynamically generated from your data
+available_crops = ["Limón", "Café", "Maiz", "Naranja", "Uva", "Nogal"]  # This should be dynamically generated from your data
 selected_crop = get_crop_id(st.selectbox('Select Crops', available_crops))
 # crops = [get_crop_id(i) for i in selected_crops]
 
