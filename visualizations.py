@@ -102,22 +102,6 @@ def plot_data(crop,crop_data, xlabels):
     plt.title(f'Elements Analysis for {get_crop_name(crop_name)}')
     plt.xlabel('Element')
     plt.ylabel('Value')
-    # else:
-    #     # Original logic for multiple crops
-    #     check = True
-    #     for crop_name, elements_data in cro.items():
-    #         for element_name, values in elements_data.items():
-    #             means, stds = zip(*[map(float, val.split(' ± ')) for val in values])
-    #             indices = [get_crop_name(crop_name) + " " + i for i in xlabels]
-    #             if check:
-    #                 plt.errorbar(indices, means, yerr=stds, fmt='o', c=get_color(element_name), label=element_name)
-    #             else:
-    #                 plt.errorbar(indices, means, yerr=stds, fmt='o', c=get_color(element_name))
-    #         check = False
-    #     plt.title('Elements Analysis')
-    #     plt.xlabel('Metric Index')
-    #     plt.ylabel('Value')
-    #     plt.xticks(rotation=45)
 
     plt.legend(loc='upper center', bbox_to_anchor=(1.2, 0.5), ncol=1)
     plt.show()
