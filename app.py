@@ -42,7 +42,7 @@ else:
 elements = st.multiselect('Select Elements', elements_to_display, default=elements_to_display)
 
 available_metrics = ['$R^2 Score$', 'MAE', 'MAPE']
-selected_metrics = st.multiselect('Select Metrics', available_metrics)
+selected_metrics = st.multiselect('Select Metrics', available_metrics, default='MAPE')
 metrics = [available_metrics.index(i) for i in selected_metrics]
 
 # Selecting between base model and crop model

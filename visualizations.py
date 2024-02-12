@@ -100,8 +100,9 @@ def plot_data(crop,crop_data, xlabels):
         plt.errorbar(elements_data.keys(), values, yerr=stds, fmt='o', label=metric)
     plt.xticks(rotation=45)
     plt.title(f'Elements Analysis for {get_crop_name(crop_name)}')
-    plt.xlabel('Element')
-    plt.ylabel('Value')
+    plt.xlabel('Element(s)')
+    plt.ylabel('Values')
 
+    plt.grid(alpha=0.6)
     plt.legend(loc='upper center', bbox_to_anchor=(1.2, 0.5), ncol=1)
     plt.show()
