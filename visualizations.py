@@ -33,7 +33,7 @@ def load_json_data(file_path):
     with open(file_path, 'r') as file:
         return json.load(file)
 
-def filter_data(data_with_santiago, data_without_santiago, crops, elements, metrics,base_model, with_santiago):
+def filter_data(data_with_santiago, data_without_santiago, crop, elements, metrics,base_model, with_santiago):
     if with_santiago:
         data = data_with_santiago
     else:
@@ -42,17 +42,16 @@ def filter_data(data_with_santiago, data_without_santiago, crops, elements, metr
         model = "Base Model"
     else:
         model = "Crop Model"
-    filtered_data = {}
-    for crop in crops:
-        crop_data = {}
-        for element in elements:
-            ele = []
-            for metric in metrics:
-                ele.append(data[crop][model][element][metric])
-            crop_data[element] = ele
-        filtered_data[crop] = crop_data
+    # cro = {}
+    crop_data = {}
+    for element in elements:
+        ele = []
+        for metric in metrics:
+            ele.append(data[crop][model][element][metric])
+        crop_data[element] = ele
+    # cro[crop] = crop_data
     
-    return filtered_data
+    return crop, crop_data
 
 def get_crop_name(x):
     ['pi', 'lim', 'caf', 'ma', 'naranja', 'uva', 'nogal']
@@ -92,20 +91,17 @@ def get_color(element):
     elements = ['N [%]', 'P [%]', 'K [%]', 'Ca [%]', 'Mg [%]', 'Fe [mg/kg]', 'Cu [mg/kg]', 'Zn [mg/kg]', 'Mn [mg/kg]', 'B [mg/kg]']
     return colors[elements.index(element)]
 
-def plot_data(filtered_data, xlabels):
-    check = True
-    for crop_name, elements_data in filtered_data.items():
-        for element_name, values in elements_data.items():
-            means, stds = zip(*[map(float, val.split(' ± ')) for val in values])
-            indices = [get_crop_name(crop_name) + " " + i for i in xlabels]
-            if check:
-                plt.errorbar(indices, means, yerr=stds, fmt='o',c = get_color(element_name),label=element_name)
-            else:
-                plt.errorbar(indices, means, yerr=stds, fmt='o',c = get_color(element_name))
-        check = False
-    plt.title('Elements Analysis')
-    plt.xlabel('Metric Index')
-    plt.ylabel('Value')
-    plt.legend(loc='upper center', bbox_to_anchor=(1.2,0.5), ncol=1)
+def plot_data(crop,crop_data, xlabels):
+    
+    crop_name, elements_data = crop, crop_data
+    for i, metric in enumerate(xlabels):
+        values = [float(elements_data[element_name][i].split(' ± ')[0]) for element_name in elements_data]
+        stds = [float(elements_data[element_name][i].split(' ± ')[1]) for element_name in elements_data]
+        plt.errorbar(elements_data.keys(), values, yerr=stds, fmt='o', label=metric)
     plt.xticks(rotation=45)
+    plt.title(f'Elements Analysis for {get_crop_name(crop_name)}')
+    plt.xlabel('Element')
+    plt.ylabel('Value')
+
+    plt.legend(loc='upper center', bbox_to_anchor=(1.2, 0.5), ncol=1)
     plt.show()
