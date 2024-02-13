@@ -13,7 +13,7 @@ text_color = "#404040"
 # Update here with the color #6b6b6b for the desired elements
 params = {'axes.titlesize': medium,
           'legend.fontsize': small,
-          'figure.figsize': (8, 8),
+          'figure.figsize': (4, 4),
           'axes.labelsize': small,
           'axes.linewidth': 2,
           'xtick.labelsize': small,
@@ -34,20 +34,18 @@ def load_json_data(file_path):
         return json.load(file)
 
 def filter_data(data_with_santiago, data_without_santiago, crop, elements, metric_index, base_model, with_santiago):
-    data = data_with_santiago if with_santiago == "With Santiago" else data_without_santiago
-    #Incorrect Implementation
-#    if with_santiago:
-#        data = data_with_santiago
-#    else:
-#        data = data_without_santiago
-    model = "Base Model" if base_model else "Crop Model"
-    crop_data = {}
-    for element in elements:  
-        met = data[crop][model][element][metric_index]
-        crop_data[element] = met
-    # cro[crop] = crop_data
     
-    return crop, crop_data
+    data = data_with_santiago if with_santiago == "With Santiago" else data_without_santiago
+    model = "Base Model" if base_model else "Crop Model"
+
+    crop_data = {}
+    for element in elements:
+        ele = []
+        for run in data.keys():
+            ele.append(data[run][crop][model][element][metric_index])
+        crop_data[element] = ele
+
+    return list(crop_data.values())
 
 def get_crop_name(x):
     ['pi', 'lim', 'caf', 'ma', 'naranja', 'uva', 'nogal']
@@ -90,49 +88,60 @@ def get_color(element):
 def get_element_name(elements):
     return [element.split()[0] for element in elements]
 
-def plot_data(crop,crop_data, metric):
-    # Common font properties
-    font_props = {'fontsize': 18, 'color': text_color} 
-    crop_name, elements_data = crop, crop_data
-    values = [float(elements_data[element_name].split(' ± ')[0]) for element_name in elements_data]
-    stds = [float(elements_data[element_name].split(' ± ')[1]) for element_name in elements_data]
-    plt.errorbar(get_element_name(elements_data.keys()), values, yerr=stds, fmt='o')
-    plt.title(f'Elements Analysis for {get_crop_name(crop_name)}')
-    plt.ylabel(metric)
-    unit = list(elements_data.keys())[0].split()[1]
-    plt.figtext(0.5, 0.01, f'Unit : {unit} ', ha='center', va='bottom', **font_props)
-    plt.grid(alpha=0.6)
-    plt.show()
 
-def plot_all_nutrients(crop, crop_data, metric):  
+def plot_data(data_with_santiago, data_without_santiago, selected_crop, nutrient_type, metric_index,
+              base_model, with_santiago):  
+    
+    # Define macro and micro elements
     macro_elements = ['N [%]', 'P [%]', 'K [%]', 'Ca [%]', 'Mg [%]']
     macro_elements_ = ['N', 'P', 'K', 'Ca', 'Mg']
     micro_elements = ['Fe [mg/kg]', 'Cu [mg/kg]', 'Zn [mg/kg]', 'Mn [mg/kg]', 'B [mg/kg]']
     micro_elements_ = ['Fe', 'Cu', 'Zn', 'Mn', 'B']
+    available_metrics = ['R2 Score', 'MAE', 'MAPE']
 
-    # 2 subplots side-by-side
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6)) 
+    font_props = {'fontsize': small, 'color': text_color}
 
-    # Common font properties
-    font_props = {'fontsize': 18, 'color': text_color}  # Define your desired font size and color
+    if nutrient_type=="All":
 
-    # Macro Nutrients Plotting Logic
-    values = [float(crop_data[element].split(' ± ')[0]) for element in macro_elements]
-    stds = [float(crop_data[element].split(' ± ')[1]) for element in macro_elements]
-    ax1.errorbar(macro_elements_, values, yerr=stds, fmt='o')
-    ax1.set_title(f'Macronutrients for {get_crop_name(crop)}', fontdict=font_props)
-    ax1.set_ylabel(metric, fontdict=font_props)
-    ax1.grid(alpha=0.6)
-    ax1.annotate('Unit : %', xy=(0.5, -0.15), xycoords='axes fraction', ha='center', va='top', **font_props)
+        # 2 subplots side-by-side
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8)) 
 
-    # Micro Nutrients Plotting Logic
-    values = [float(crop_data[element].split(' ± ')[0]) for element in micro_elements]
-    stds = [float(crop_data[element].split(' ± ')[1]) for element in micro_elements]
-    ax2.errorbar(micro_elements_, values, yerr=stds, fmt='o')
-    ax2.set_title(f'Micronutrients for {get_crop_name(crop)}', fontdict=font_props)
-    ax2.grid(alpha=0.6)
-    ax2.annotate('Unit : mg/kg', xy=(0.5, -0.15), xycoords='axes fraction', ha='center', va='top', **font_props)
+        # Macro Nutrients Plotting Logic
+        data = filter_data(data_with_santiago, data_without_santiago, selected_crop, macro_elements, metric_index, base_model, with_santiago)
+        ax1.boxplot(data, labels=macro_elements_)
+        ax1.set_title(f'Macronutrients')
+        ax1.set_ylabel(available_metrics[metric_index])
+        ax1.grid(alpha=0.6)
+        ax1.annotate('Unit: %', xy=(0.5, -0.12), xycoords='axes fraction', ha='center', va='top', **font_props)
 
-    fig.suptitle(f'All Nutrients Analysis for {get_crop_name(crop)}', fontsize=large, color=text_color)
-    plt.tight_layout()
-    plt.show()
+        # Micro Nutrients Plotting Logic
+        data = filter_data(data_with_santiago, data_without_santiago, selected_crop, micro_elements, metric_index, base_model, with_santiago)
+        ax2.boxplot(data, labels=micro_elements_)
+        ax2.set_title(f'Micronutrients')
+        ax2.set_ylabel(available_metrics[metric_index])
+        ax2.grid(alpha=0.6)
+        ax2.annotate('Unit: mg/kg', xy=(0.5, -0.12), xycoords='axes fraction', ha='center', va='top', **font_props)
+
+        fig.suptitle(f'All Nutrients Analysis for {get_crop_name(selected_crop)}', fontsize=large, color=text_color)
+        plt.tight_layout()
+        plt.show()
+    
+    elif nutrient_type=='Macro Nutrients':
+        data = filter_data(data_with_santiago, data_without_santiago, selected_crop, macro_elements, metric_index, base_model, with_santiago)
+        plt.boxplot(data, labels=macro_elements_)
+        plt.ylabel(available_metrics[metric_index])
+        plt.grid(alpha=0.6)
+        plt.annotate('Unit: %', xy=(0.5, -0.12), xycoords='axes fraction', ha='center', va='top', **font_props)
+        plt.title(f'Macro Nutrients Analysis for {get_crop_name(selected_crop)}')
+        plt.tight_layout()
+        plt.show()
+    
+    else:
+        data = filter_data(data_with_santiago, data_without_santiago, selected_crop, micro_elements, metric_index, base_model, with_santiago)
+        plt.boxplot(data, labels=micro_elements_)
+        plt.ylabel(available_metrics[metric_index])
+        plt.grid(alpha=0.6)
+        plt.annotate('Unit: mg/kg', xy=(0.5, -0.12), xycoords='axes fraction', ha='center', va='top', **font_props)
+        plt.title(f'Micro Nutrients Analysis for {get_crop_name(selected_crop)}')
+        plt.tight_layout()
+        plt.show()
