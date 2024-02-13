@@ -118,7 +118,6 @@ def plot_data(data_with_santiago, data_without_santiago, selected_crop, nutrient
         data = filter_data(data_with_santiago, data_without_santiago, selected_crop, micro_elements, metric_index, base_model, with_santiago)
         ax2.boxplot(data, labels=micro_elements_)
         ax2.set_title(f'Micronutrients')
-        ax2.set_ylabel(available_metrics[metric_index])
         ax2.grid(alpha=0.6)
         ax2.annotate('Unit: mg/kg', xy=(0.5, -0.12), xycoords='axes fraction', ha='center', va='top', **font_props)
 
