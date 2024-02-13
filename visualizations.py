@@ -33,22 +33,18 @@ def load_json_data(file_path):
     with open(file_path, 'r') as file:
         return json.load(file)
 
-def filter_data(data_with_santiago, data_without_santiago, crop, elements, metrics,base_model, with_santiago):
-    if with_santiago:
-        data = data_with_santiago
-    else:
-        data = data_without_santiago
-    if base_model:
-        model = "Base Model"
-    else:
-        model = "Crop Model"
-    # cro = {}
+def filter_data(data_with_santiago, data_without_santiago, crop, elements, metric_index, base_model, with_santiago):
+    data = data_with_santiago if with_santiago == "With Santiago" else data_without_santiago
+    #Incorrect Implementation
+#    if with_santiago:
+#        data = data_with_santiago
+#    else:
+#        data = data_without_santiago
+    model = "Base Model" if base_model else "Crop Model"
     crop_data = {}
-    for element in elements:
-        ele = []
-        for metric in metrics:
-            ele.append(data[crop][model][element][metric])
-        crop_data[element] = ele
+    for element in elements:  
+        met = data[crop][model][element][metric_index]
+        crop_data[element] = met
     # cro[crop] = crop_data
     
     return crop, crop_data
@@ -91,18 +87,52 @@ def get_color(element):
     elements = ['N [%]', 'P [%]', 'K [%]', 'Ca [%]', 'Mg [%]', 'Fe [mg/kg]', 'Cu [mg/kg]', 'Zn [mg/kg]', 'Mn [mg/kg]', 'B [mg/kg]']
     return colors[elements.index(element)]
 
-def plot_data(crop,crop_data, xlabels):
-    
-    crop_name, elements_data = crop, crop_data
-    for i, metric in enumerate(xlabels):
-        values = [float(elements_data[element_name][i].split(' ± ')[0]) for element_name in elements_data]
-        stds = [float(elements_data[element_name][i].split(' ± ')[1]) for element_name in elements_data]
-        plt.errorbar(elements_data.keys(), values, yerr=stds, fmt='o', label=metric)
-    plt.xticks(rotation=45)
-    plt.title(f'Elements Analysis for {get_crop_name(crop_name)}')
-    plt.xlabel('Element(s)')
-    plt.ylabel('Values')
+def get_element_name(elements):
+    return [element.split()[0] for element in elements]
 
+def plot_data(crop,crop_data, metric):
+    # Common font properties
+    font_props = {'fontsize': 18, 'color': text_color} 
+    crop_name, elements_data = crop, crop_data
+    values = [float(elements_data[element_name].split(' ± ')[0]) for element_name in elements_data]
+    stds = [float(elements_data[element_name].split(' ± ')[1]) for element_name in elements_data]
+    plt.errorbar(get_element_name(elements_data.keys()), values, yerr=stds, fmt='o')
+    plt.title(f'Elements Analysis for {get_crop_name(crop_name)}')
+    plt.ylabel(metric)
+    unit = list(elements_data.keys())[0].split()[1]
+    plt.figtext(0.5, 0.01, f'Unit : {unit} ', ha='center', va='bottom', **font_props)
     plt.grid(alpha=0.6)
-    plt.legend(loc='upper center', bbox_to_anchor=(1.2, 0.5), ncol=1)
+    plt.show()
+
+def plot_all_nutrients(crop, crop_data, metric):  
+    macro_elements = ['N [%]', 'P [%]', 'K [%]', 'Ca [%]', 'Mg [%]']
+    macro_elements_ = ['N', 'P', 'K', 'Ca', 'Mg']
+    micro_elements = ['Fe [mg/kg]', 'Cu [mg/kg]', 'Zn [mg/kg]', 'Mn [mg/kg]', 'B [mg/kg]']
+    micro_elements_ = ['Fe', 'Cu', 'Zn', 'Mn', 'B']
+
+    # 2 subplots side-by-side
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6)) 
+
+    # Common font properties
+    font_props = {'fontsize': 18, 'color': text_color}  # Define your desired font size and color
+
+    # Macro Nutrients Plotting Logic
+    values = [float(crop_data[element].split(' ± ')[0]) for element in macro_elements]
+    stds = [float(crop_data[element].split(' ± ')[1]) for element in macro_elements]
+    ax1.errorbar(macro_elements_, values, yerr=stds, fmt='o')
+    ax1.set_title(f'Macronutrients for {get_crop_name(crop)}', fontdict=font_props)
+    ax1.set_ylabel(metric, fontdict=font_props)
+    ax1.grid(alpha=0.6)
+    ax1.annotate('Unit : %', xy=(0.5, -0.15), xycoords='axes fraction', ha='center', va='top', **font_props)
+
+    # Micro Nutrients Plotting Logic
+    values = [float(crop_data[element].split(' ± ')[0]) for element in micro_elements]
+    stds = [float(crop_data[element].split(' ± ')[1]) for element in micro_elements]
+    ax2.errorbar(micro_elements_, values, yerr=stds, fmt='o')
+    ax2.set_title(f'Micronutrients for {get_crop_name(crop)}', fontdict=font_props)
+    ax2.grid(alpha=0.6)
+    ax2.annotate('Unit : mg/kg', xy=(0.5, -0.15), xycoords='axes fraction', ha='center', va='top', **font_props)
+
+    fig.suptitle(f'All Nutrients Analysis for {get_crop_name(crop)}', fontsize=large, color=text_color)
+    plt.tight_layout()
     plt.show()
