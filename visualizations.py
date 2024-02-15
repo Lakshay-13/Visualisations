@@ -108,7 +108,7 @@ def plot_data(data_with_santiago, data_without_santiago, selected_crop, nutrient
 
         # Macro Nutrients Plotting Logic
         data = filter_data(data_with_santiago, data_without_santiago, selected_crop, macro_elements, metric_index, base_model, with_santiago)
-        ax1.boxplot(data, labels=macro_elements_)
+        ax1.boxplot(data, labels=macro_elements_, medianprops=dict(color='black'))
         ax1.set_title(f'Macronutrients')
         ax1.set_ylabel(available_metrics[metric_index])
         ax1.grid(alpha=0.6)
@@ -116,7 +116,7 @@ def plot_data(data_with_santiago, data_without_santiago, selected_crop, nutrient
 
         # Micro Nutrients Plotting Logic
         data = filter_data(data_with_santiago, data_without_santiago, selected_crop, micro_elements, metric_index, base_model, with_santiago)
-        ax2.boxplot(data, labels=micro_elements_)
+        ax2.boxplot(data, labels=micro_elements_, medianprops=dict(color='black'))
         ax2.set_title(f'Micronutrients')
         ax2.grid(alpha=0.6)
         ax2.annotate('Unit: mg/kg', xy=(0.5, -0.12), xycoords='axes fraction', ha='center', va='top', **font_props)
@@ -127,7 +127,7 @@ def plot_data(data_with_santiago, data_without_santiago, selected_crop, nutrient
     
     elif nutrient_type=='Macro Nutrients':
         data = filter_data(data_with_santiago, data_without_santiago, selected_crop, macro_elements, metric_index, base_model, with_santiago)
-        plt.boxplot(data, labels=macro_elements_)
+        plt.boxplot(data, labels=macro_elements_, medianprops=dict(color='black'))
         plt.ylabel(available_metrics[metric_index])
         plt.grid(alpha=0.6)
         plt.annotate('Unit: %', xy=(0.5, -0.12), xycoords='axes fraction', ha='center', va='top', **font_props)
@@ -137,7 +137,7 @@ def plot_data(data_with_santiago, data_without_santiago, selected_crop, nutrient
     
     else:
         data = filter_data(data_with_santiago, data_without_santiago, selected_crop, micro_elements, metric_index, base_model, with_santiago)
-        plt.boxplot(data, labels=micro_elements_)
+        plt.boxplot(data, labels=micro_elements_, medianprops=dict(color='black'))
         plt.ylabel(available_metrics[metric_index])
         plt.grid(alpha=0.6)
         plt.annotate('Unit: mg/kg', xy=(0.5, -0.12), xycoords='axes fraction', ha='center', va='top', **font_props)
